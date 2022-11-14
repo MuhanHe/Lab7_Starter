@@ -69,6 +69,12 @@ async function getRecipes() {
   // A1. TODO - Check local storage to see if there are any recipes.
   //            If there are recipes, return them.
   /**************************/
+  var recipes = window.localStorage.getItem('recipes');
+  if (recipes != null){
+    return JSON.parse(recipes);
+  }
+  else{
+
   // The rest of this method will be concerned with requesting the recipes
   // from the network
   // A2. TODO - Create an empty array to hold the recipes that you will fetch
@@ -77,12 +83,15 @@ async function getRecipes() {
   //            function (we call these callback functions). That function will
   //            take two parameters - resolve, and reject. These are functions
   //            you can call to either resolve the Promise or Reject it.
+    recipes = [];
+    return new Promise(async function(resolve, reject) {
   /**************************/
   // A4-A11 will all be *inside* the callback function we passed to the Promise
   // we're returning
   /**************************/
   // A4. TODO - Loop through each recipe in the RECIPE_URLS array constant
   //            declared above
+    for (let i= 0; i< RECIPE_URLS.length; i++){
   // A5. TODO - Since we are going to be dealing with asynchronous code, create
   //            a try / catch block. A6-A9 will be in the try portion, A10-A11
   //            will be in the catch portion.
@@ -98,8 +107,24 @@ async function getRecipes() {
   //            if you have, then save the recipes to storage using the function
   //            we have provided. Then, pass the recipes array to the Promise's
   //            resolve() method.
-  // A10. TODO - Log any errors from catch using console.error
-  // A11. TODO - Pass any errors to the Promise's reject() function
+      try{
+        let response = await fetch(RECIPE_URLS[i]);
+        let json = await response.json();
+        recipes.push(json);
+        if (recipes.length == RECIPE_URLS.length){
+          saveRecipesToStorage(recipes);
+          resolve(recipes);
+        }
+      }catch (e){
+      // A10. TODO - Log any errors from catch using console.error
+      // A11. TODO - Pass any errors to the Promise's reject() function
+        console.error(e);
+        reject(console.error(e));
+      }
+    }
+  });
+
+}
 }
 
 /**
